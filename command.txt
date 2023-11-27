@@ -1,1 +1,4 @@
 python server.py -m mapper.py -r reducer.py -f file_to_send.txt -n 1
+
+
+python server_new.py -m mapper.py -r reducer.py -f file_to_send.txt -n 1
