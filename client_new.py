@@ -2,12 +2,14 @@ import socket
 import Settings
 import pickle
 import shutil
+import os
+from Utils import *
 
 def start_client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # server_host = '192.168.1.68'  # 服务器的IP地址或主机名
+    # server_host = '192.168.1.68'  # Server IP
     server_host = Settings.ServerIP()
-    server_port = 12345            # 服务器的端口号
+    server_port = 12345            # Server Port
 
     client_socket.connect((server_host, server_port))
 
@@ -20,7 +22,7 @@ def start_client():
     input("Click to send mapped data to server.")
     client_socket.sendall(file_mapped)
 
-    input("等待shuffle")
+    input("Click to start shuffling.")
 
     # file_to_send = "file_to_send.txt"
     # with open(file_to_send, 'rb') as file:
@@ -36,30 +38,41 @@ def start_client():
     input("reducer发送完毕")
     client_socket.close()
 
-def Map(to_be_mapped):
+def Map(i, to_be_mapped):
     input("Click to finish mapping")
-    result = []
-    for char in to_be_mapped:
-        result.append((char, 1))
-    to_send = pickle.dumps(result)
-    mapped = to_send
-    return mapped
+    filePath = "MappedData_{}.txt".format(i)
+    mapped = getLog("mapper.py", filePath, to_be_mapped)
+    result = None
+    return result
 
-def Reduce(to_be_reduced):
+def Reduce(i):
     input("Click to finish reducing")
-    data = to_be_reduced
-    sum = 0
-    for keys in data.keys():
-        value = data[keys]
-        for iter in value:
-            iter = int(iter)
-            sum += iter
-    reduced = sum
-    reduced = pickle.dumps(reduced)
-    return reduced
+    filePath = "ReducedData_{}.txt".format(i)
+    reduced = getLog("reducer.py", filePath)
+    result = None
+    return result
 
 def DeleteFile(path):
     shutil.rmtree(path)
+
+def ReadFrom(path):
+    with open(path, 'r') as file:
+        # 使用 readlines() 方法将文件内容按行读入列表
+        lines = [line.strip() for line in file.readlines()]
+    data = lines
+    return data
+
+def WriteTo(path, data):
+    # data should be a list
+    if not os.path.exists(path):
+        with open(path, 'w') as file:
+            for i in range(len(data)):
+                file.writelines(data[i])
+    else:
+        # 如果文件存在，追加写入内容
+        with open(path, 'a') as file:
+            for i in range(len(data)):
+                file.writelines(data[i])
 
 if __name__ == "__main__":
     start_client()

@@ -13,16 +13,15 @@ def start_server():
     print(f"file name: %s" % file)
     print(f"number of nodes: %s" % number)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # host = '192.168.1.68'  # 服务器的IP地址，0.0.0.0 表示接受来自任何网络接口的连接
+    # host = '192.168.1.68'
     host = Settings.ServerIP()
-    port = 12345  # 选择一个未被占用的端口
+    port = 12345
 
     server_socket.bind((host, port))
     server_socket.listen(int(number))
 
     print(f"Waiting for client to connect {host}:{port}...")
 
-    # 建立与Clients的连接
     Clients = SetupClients(server_socket, number)
 
     buffer = []
@@ -218,6 +217,8 @@ def CloseClient(client, clients):
             clients.remove(iter)
     return clients
 
+def DeleteFile(path):
+    shutil.rmtree(path)
 
 class Client:
     def __init__(self, name, client_socket, client_address):
