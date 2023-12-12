@@ -6,6 +6,7 @@ import threading
 import time
 import Settings
 import pickle
+import utils
 
 class Server:
     def __init__(self, host, port):
@@ -15,15 +16,19 @@ class Server:
         self.tasks = {}
         self.lock = threading.Lock()
 
+
     def start(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.host, self.port))
-        # self.socket.listen(5)
+        self.socket.listen(2)
         threading.Thread(target=self.monitor_workers()).start()
 
         while True:
             conn, addr = self.socket.accept()
             threading.Thread(target=self.handle_worker, args=(conn,)).start()
+
+
+
 
 
     def handle_worker(self, conn):
@@ -49,3 +54,19 @@ class Server:
                     if status == 'idle':
                         pass
 
+    def shuffle(self, addr_list):
+        sorted = utils.sort(addr_list)
+        keys = sorted['Key'].unique().tolist()
+
+        idle_workers = []
+        for worker in self.workers.keys():
+            if self.workers[worker] == 'idle':
+                idle_workers.append(worker)
+
+        num = len(idle_workers)
+        buckets = {i: [] for i in range(num)}
+        for key in keys:
+            bucket_num = hash(key) % num
+            buckets[num].append(key)
+
+        

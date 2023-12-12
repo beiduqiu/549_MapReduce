@@ -6,7 +6,7 @@ class Worker:
         self.server_host = server_host
         self.server_port = server_port
         self.worker_id = worker_id
-        self.status = "IDLE"
+        self.status = "idle"
         ## ['idle', 'mapping', 'reducing']
         self.connect = socket.create_connection((self.server_host, self.server_port))
 
@@ -23,3 +23,7 @@ class Worker:
                 break
             task = data.decode('utf-8')
             # 处理任务逻辑
+
+    def run(self):
+        # 运行环境下用户代码
+        pass
