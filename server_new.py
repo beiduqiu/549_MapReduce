@@ -4,6 +4,7 @@ import os
 import shutil
 import Settings
 import pickle
+import dask.dataframe as dd
 
 
 def start_server():
@@ -144,6 +145,11 @@ def SetupClients(server_socket, num_clients):
         print(f"Connected by {client_address}")
     return Clients
 
+
+def Shuffle(address_list, ):
+    file_pattern = 'mapper/*/to_be_shuffled.csv'
+    df = dd.read_csv(file_pattern)
+    sorted_df = dd.sort
 
 
 def Shuffle(to_be_shuffled, clients, buffer):
