@@ -7,6 +7,7 @@ import time
 import Settings
 import pickle
 import utils
+import dask.bag as db
 
 class MyServer:
     def __init__(self, host, port):
@@ -58,6 +59,7 @@ class MyServer:
                     break
         print("send reduce file to all workers")
         return 1
+    
     def send_origin_data_to_worker(self, num_workers,input_file_name):
         for i in range(num_workers):
             send_file = f"splited_data/{i}_{input_file_name}"
@@ -73,7 +75,6 @@ class MyServer:
         print("splited data successfully sent")
 
         return 1
-    
 
     def handle_worker(self, conn):
         while True:
@@ -98,20 +99,33 @@ class MyServer:
                     if status == 'idle':
                         pass
 
-    def shuffle(self, addr_list):
-        sorted = utils.sort(addr_list)
-        keys = sorted['Key'].unique().tolist()
+    # def shuffle(self, addr_list):
+    #     sorted = utils.sort(addr_list)
+    #     keys = sorted['Key'].unique().tolist()
+    #
+    #     idle_workers = []
+    #     for worker in self.workers.keys():
+    #         if self.workers[worker] == 'idle':
+    #             idle_workers.append(worker)
+    #
+    #     num = len(idle_workers)
+    #     buckets = {i: [] for i in range(num)}
+    #     for key in keys:
+    #         bucket_num = hash(key) % num
+    #         buckets[num].append(key)
 
-        idle_workers = []
-        for worker in self.workers.keys():
-            if self.workers[worker] == 'idle':
-                idle_workers.append(worker)
 
-        num = len(idle_workers)
-        buckets = {i: [] for i in range(num)}
-        for key in keys:
-            bucket_num = hash(key) % num
-            buckets[num].append(key)
+    def split_2_k(self, file_path, k):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        chunk_size = len(lines) // k
+        file_chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+
+        for i, chunk in enumerate(file_chunks):
+            with open(f'File/file_part_{i}.txt', 'w', encoding='utf-8') as f:
+                f.writelines(chunk)
+
 
 def split_file_by_lines(input_file_path,input_file_name, number_of_split,output_dir):
     with open(input_file_path, 'r') as infile:
