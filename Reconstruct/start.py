@@ -4,6 +4,7 @@ from Settings import *
 import multiprocessing
 import subprocess
 import os
+import time
 import shutil
 
 def run_script(script_name):
@@ -18,6 +19,10 @@ def main():
     #worker1 = Worker(host, port, 'worker1')
     #worker2 = Worker(host, port, 'worker2')
     my_server.start_connection(num_workers)
+    
+    my_server.send_reduce_file("User\\reducer.py","reducer.py",num_workers)
+    time.sleep(0.1)
+    my_server.send_map_file("User\\mapper.py","mapper.py",num_workers)
     os.makedirs('splited_data')
     split_file_by_lines("User\\data.txt","data.txt",len(my_server.workers),"splited_data")
     my_server.send_origin_data_to_worker(num_workers,"data.txt")

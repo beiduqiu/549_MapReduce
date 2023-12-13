@@ -29,11 +29,41 @@ class MyServer:
             #threading.Thread(target=self.handle_worker, args=(conn,)).start()
             num += 1
         #threading.Thread(target=self.monitor_workers()).start()
-
+    def send_map_file(self,file_path,file_name,num_workers):
+        with open(file_path, 'rb') as file:
+            file_size = os.path.getsize(file_path)
+            file_info = f"{file_name},{file_size}"
+            for i in range(num_workers):
+                self.workers[i][0].send(file_info.encode('utf8'))
+            while True:
+                data = file.read(1024)
+                for i in range(num_workers):
+                    self.workers[i][0].send(data)
+                if not data:
+                    break
+        print("send map file to all workers")
+        return 1
+    
+    def send_reduce_file(self,file_path,file_name,num_workers):
+        with open(file_path, 'rb') as file:
+            file_size = os.path.getsize(file_path)
+            file_info = f"{file_name},{file_size}"
+            for i in range(num_workers):
+                self.workers[i][0].send(file_info.encode('utf8'))
+            while True:
+                data = file.read(1024)
+                for i in range(num_workers):
+                    self.workers[i][0].send(data)
+                if not data:
+                    break
+        print("send reduce file to all workers")
+        return 1
     def send_origin_data_to_worker(self, num_workers,input_file_name):
-        
         for i in range(num_workers):
             send_file = f"splited_data/{i}_{input_file_name}"
+            file_size = os.path.getsize(send_file)
+            file_info = f"{input_file_name},{file_size}"
+            self.workers[i][0].send(file_info.encode('utf8'))
             with open(send_file, 'rb') as file:
                 while True:
                     data = file.read(1024)
