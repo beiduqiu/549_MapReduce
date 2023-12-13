@@ -78,6 +78,7 @@ class Worker:
         self.receive_files(self.socket)
         self.receive_files(self.socket)
         self.receive_files(self.socket)
+        self.map(1)
 
     def run(self):
         # 运行环境下用户代码
@@ -87,16 +88,16 @@ class Worker:
         map_log = utils.getLog("mapper.py", "tuples.txt")
         tuples = utils.readTuple("tuples.txt")
         df = utils.tuples_2_pd(tuples)
-        df.sort_values(by='Key')
+        sorted_df = df.sort_values(by='Key')
         file_path = "mapped-{}.csv".format(self.worker_id)
-        df.to_csv(file_path, index=False)
+        sorted_df.to_csv(file_path, index=False)
         utils.deleteFile('tuples.txt')
-        self.shuffle(self, df, k)
+        self.shuffle(sorted_df, k)
 
 
 
     def shuffle(self, df, k):
-        keys = df.unique().tolist()
+        keys = df['Key'].unique().tolist()
         buckets = {i: [] for i in range(k)}
         for key in keys:
             bucket_num = hash(key) % k
@@ -105,8 +106,7 @@ class Worker:
         for key in buckets.keys():
             keys = buckets[key]
             filtered_df = df[df['Key'].isin(keys)]
-            filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
-            filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
+            filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key), index=False)
 
     def distribute(self, addr_dict, k):
         i = self.worker_id
@@ -117,8 +117,8 @@ class Worker:
 
 
 
-    def reduce(self, addr_list, key_list):
-        utils.combine(addr_list, key_list)
+    def reduce(self, addr_list):
+        utils.combine(addr_list)
         reduce_log = utils.getLog("reducer.py", "tuples.txt")
         tuples = utils.readTuple("tuples.txt")
         df = utils.tuples_2_pd(tuples)
