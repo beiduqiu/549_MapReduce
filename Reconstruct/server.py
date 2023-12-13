@@ -7,6 +7,7 @@ import time
 import Settings
 import pickle
 import utils
+import dask.bag as db
 
 class Server:
     def __init__(self, host, port):
@@ -54,19 +55,31 @@ class Server:
                     if status == 'idle':
                         pass
 
-    def shuffle(self, addr_list):
-        sorted = utils.sort(addr_list)
-        keys = sorted['Key'].unique().tolist()
+    # def shuffle(self, addr_list):
+    #     sorted = utils.sort(addr_list)
+    #     keys = sorted['Key'].unique().tolist()
+    #
+    #     idle_workers = []
+    #     for worker in self.workers.keys():
+    #         if self.workers[worker] == 'idle':
+    #             idle_workers.append(worker)
+    #
+    #     num = len(idle_workers)
+    #     buckets = {i: [] for i in range(num)}
+    #     for key in keys:
+    #         bucket_num = hash(key) % num
+    #         buckets[num].append(key)
 
-        idle_workers = []
-        for worker in self.workers.keys():
-            if self.workers[worker] == 'idle':
-                idle_workers.append(worker)
 
-        num = len(idle_workers)
-        buckets = {i: [] for i in range(num)}
-        for key in keys:
-            bucket_num = hash(key) % num
-            buckets[num].append(key)
+    def split_2_k(self, file_path, k):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
 
-        
+        chunk_size = len(lines) // k
+        file_chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+
+        for i, chunk in enumerate(file_chunks):
+            with open(f'File/file_part_{i}.txt', 'w', encoding='utf-8') as f:
+                f.writelines(chunk)
+
+

@@ -1,5 +1,7 @@
 import socket
 import time
+import utils
+import pandas as pd
 
 class Worker:
     def __init__(self, server_host, server_port, worker_id):
@@ -27,3 +29,21 @@ class Worker:
     def run(self):
         # 运行环境下用户代码
         pass
+
+    def map(self, file_path):
+        map_log = utils.getLog("mapper.py", "tuples.txt")
+        tuples = utils.readTuple("tuples.txt")
+        df = utils.tuples_2_pd(tuples)
+        df.sort_values(by='Key')
+        df.to_csv(file_path)
+        utils.deleteFile('tuples.txt')
+
+    def reduce(self, addr_list, key_list):
+        utils.combine(addr_list, key_list)
+        reduce_log = utils.getLog("reducer.py", "tuples.txt")
+        tuples = utils.readTuple("tuples.txt")
+        df = utils.tuples_2_pd(tuples)
+        df.sort_values(by='Key')
+        df.to_csv("reduced.csv")
+        utils.deleteFile('tuples.txt')
+        utils.deleteFile('to_be_reduced.csv')

@@ -21,7 +21,7 @@ def readLine(path):
 
 def getLog(program, path, data):
     # save the log of program to path
-    result = subprocess.run(['python', program, data], capture_output=True, text=True)
+    result = subprocess.run(['python', program], capture_output=True, text=True)
     with open(path, 'w') as file:
         file.write(result.stdout)
     return result.stdout
