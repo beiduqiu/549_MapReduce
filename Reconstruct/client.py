@@ -21,12 +21,13 @@ class Worker:
         self.connect.sendall(message.encode('utf8'))
 
     def receive_task(self):
+        f = open("Client\\data.txt", "wb")
         while True:
-            data = self.conn.recv(1024)
+            data = self.socket.recv(1024)
+            f.write(data)
             if not data:
                 break
-            task = data.decode('utf-8')
-            # 处理任务逻辑
+
 
     def start_client(self):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,32 +35,8 @@ class Worker:
         server_host = Settings.ServerIP()
         server_port = 12345            # Server Port
 
-        client_socket.connect((self.server_host, self.server_port))
+        self.socket.connect((self.server_host, self.server_port))
 
-        '''input("Click to receive data from server.")
-
-        file_received = client_socket.recv(1024)
-        file_received = file_received.decode('utf-8')
-        file_mapped = Map(file_received)
-
-        input("Click to send mapped data to server.")
-        client_socket.sendall(file_mapped)
-
-        input("Click to start shuffling.")
-
-        # file_to_send = "file_to_send.txt"
-        # with open(file_to_send, 'rb') as file:
-        #     for data in file:
-        #         client_socket.sendall(data)
-
-        # print(f"文件发送完成：{file_to_send}")
-
-        file_received = client_socket.recv(1024)
-        file_received = pickle.loads(file_received)
-        data = Reduce(file_received)
-        client_socket.sendall(data)
-        input("reducer发送完毕")'''
-        client_socket.close()
 
     def run(self):
         # 运行环境下用户代码
@@ -108,3 +85,5 @@ if __name__ == "__main__":
     server_port = 12345
     worker = Worker(server_host,server_port)
     worker.start_client()
+    print("hhh")
+    worker.receive_task()

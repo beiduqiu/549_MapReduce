@@ -18,12 +18,12 @@ class MyServer:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.lock = threading.Lock()
     
-    def start(self):
+    def start_connection(self,num_nodes):
         #self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.host, self.port))
-        self.socket.listen(2)
+        self.socket.listen(num_nodes)
         num = 0
-        while num < 2:
+        while num < num_nodes:
             conn, addr = self.socket.accept()
             print(f"Connect to worker {num}: {conn},{addr}")
             self.workers.append([conn,addr])
@@ -31,7 +31,18 @@ class MyServer:
             num += 1
         #threading.Thread(target=self.monitor_workers()).start()
 
-    def send_origin_data_to_worker():
+    def send_origin_data_to_worker(self, num_workers,input_file_name):
+        
+        for i in range(num_workers):
+            send_file = f"splited_data/{i}_{input_file_name}"
+            with open(send_file, 'rb') as file:
+                while True:
+                    data = file.read(1024)
+                    self.workers[i][0].send(data)
+                    if not data:
+                        break
+        print("splited data successfully sent")
+
         return 1
 
     def handle_worker(self, conn):
@@ -85,8 +96,8 @@ class MyServer:
                 f.writelines(chunk)
 
 
-def split_file_by_lines(input_file, number_of_split,output_dir):
-    with open(input_file, 'r') as infile:
+def split_file_by_lines(input_file_path,input_file_name, number_of_split,output_dir):
+    with open(input_file_path, 'r') as infile:
         all_lines = infile.readlines()
         total_lines = len(all_lines)
         lines_per_part = total_lines // number_of_split
@@ -96,7 +107,7 @@ def split_file_by_lines(input_file, number_of_split,output_dir):
             end_index = (part_num + 1) * lines_per_part if part_num < lines_per_part- 1 else total_lines
 
             # 构造输出文件名
-            output_file = f"{output_dir}/reduce_part{part_num}.txt"
+            output_file = f"{output_dir}\{part_num}_{input_file_name}"
 
             # 将部分写入输出文件
             with open(output_file, 'w') as outfile:

@@ -14,12 +14,13 @@ def main():
     port = 12345
     print(host)
     my_server = MyServer(host, port)
+    num_workers = 1
     #worker1 = Worker(host, port, 'worker1')
     #worker2 = Worker(host, port, 'worker2')
-    my_server.start()
+    my_server.start_connection(num_workers)
     os.makedirs('splited_data')
-    split_file_by_lines("User\\data.txt",len(my_server.workers),"splited_data")
-    
+    split_file_by_lines("User\\data.txt","data.txt",len(my_server.workers),"splited_data")
+    my_server.send_origin_data_to_worker(num_workers,"data.txt")
     shutil.rmtree('splited_data')
     # 启动更多 workers ...
 '''
