@@ -14,6 +14,7 @@ class MyServer:
         self.host = host
         self.port = port
         self.workers = []
+        self.workers_states = []
         self.tasks = []
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.lock = threading.Lock()
@@ -125,6 +126,15 @@ class MyServer:
         for i, chunk in enumerate(file_chunks):
             with open(f'File/file_part_{i}.txt', 'w', encoding='utf-8') as f:
                 f.writelines(chunk)
+
+    def check_client(self, worker_list):
+        Flag = True
+        for i in range(len(worker_list)):
+            state = self.workers_states[i]
+            if state != "idle":
+                Flag = False
+        return Flag
+
 
 
 def split_file_by_lines(input_file_path,input_file_name, number_of_split,output_dir):
