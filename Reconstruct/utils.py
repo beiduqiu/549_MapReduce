@@ -49,15 +49,14 @@ def deleteFile(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-def combine(addr_list, key_list):
+def combine(addr_list):
     combined_data = pd.DataFrame()
     for addr in addr_list:
         df = pd.read_csv(addr)
-        filtered_df = df[df['Key'].isin(key_list)]
 
-        combined_data = pd.concat([combined_data, filtered_df])
-    combined_data.sort_values(by='Key')
-    combined_data.to_csv('to_be_reduced.csv', index=False)
+        combined_data = pd.concat([combined_data, df])
+    sorted_df = combined_data.sort_values(by='Key')
+    sorted_df.to_csv('to_be_reduced.csv', index=False)
 
 def sendFile(client, file_path):
     return 1
