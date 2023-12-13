@@ -45,6 +45,11 @@ class MyServer:
         print("send map file to all workers")
         return 1
     
+    def send_worker_list(self,num_workers):
+        worker_addr = []
+        for worker in self.workers:
+            worker_addr.append(worker[1])
+        
     def send_reduce_file(self,file_path,file_name,num_workers):
         with open(file_path, 'rb') as file:
             file_size = os.path.getsize(file_path)

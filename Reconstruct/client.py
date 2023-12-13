@@ -75,7 +75,9 @@ class Worker:
         server_port = 12345            # Server Port
 
         self.socket.connect((self.server_host, self.server_port))
-
+        self.receive_files(self.socket)
+        self.receive_files(self.socket)
+        self.receive_files(self.socket)
 
     def run(self):
         # 运行环境下用户代码
@@ -133,6 +135,4 @@ if __name__ == "__main__":
     worker = Worker(server_host,server_port)
     worker.start_client()
     print("hhh")
-    worker.receive_files(worker.socket)
-    worker.receive_files(worker.socket)
-    worker.receive_files(worker.socket)
+    
