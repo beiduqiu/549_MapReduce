@@ -58,3 +58,6 @@ def combine(addr_list, key_list):
         combined_data = pd.concat([combined_data, filtered_df])
     combined_data.sort_values(by='Key')
     combined_data.to_csv('to_be_reduced.csv', index=False)
+
+def sendFile(client, file_path):
+

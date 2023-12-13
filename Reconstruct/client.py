@@ -66,6 +66,14 @@ class Worker:
             filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
             filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
 
+    def distribute(self, addr_dict, k):
+        i = self.worker_id
+        for j in range(k):
+            file = "mapped-i-part-{}.csv".format(j)
+            client = addr_dict[j]
+            utils.sendFile(client, file)
+
+
 
     def reduce(self, addr_list, key_list):
         utils.combine(addr_list, key_list)
