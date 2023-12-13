@@ -50,6 +50,14 @@ class MyServer:
         worker_addr = []
         for worker in self.workers:
             worker_addr.append(worker[1])
+        print(worker_addr)
+        serialized_data = pickle.dumps(worker_addr)
+        work_addr_length = len(serialized_data)
+        for i in range(num_workers):
+            work_addr_length = f"{i},{work_addr_length}"
+            self.workers[i][0].send(work_addr_length.encode('utf8'))
+            self.workers[i][0].send(serialized_data)
+
         
     def send_reduce_file(self,file_path,file_name,num_workers):
         with open(file_path, 'rb') as file:
