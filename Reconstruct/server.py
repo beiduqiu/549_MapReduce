@@ -30,8 +30,10 @@ class MyServer:
             #threading.Thread(target=self.handle_worker, args=(conn,)).start()
             num += 1
         #threading.Thread(target=self.monitor_workers()).start()
+
     def send_origin_data_to_worker():
         return 1
+
     def handle_worker(self, conn):
         while True:
             data = conn.recv(1024)

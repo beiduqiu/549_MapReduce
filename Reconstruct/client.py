@@ -3,6 +3,7 @@ import time
 import utils
 import pandas as pd
 import Settings
+import hashlib
 
 class Worker:
     def __init__(self, server_host, server_port):
@@ -26,6 +27,7 @@ class Worker:
                 break
             task = data.decode('utf-8')
             # 处理任务逻辑
+
     def start_client(self):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # server_host = '192.168.1.68'  # Server IP
@@ -63,13 +65,30 @@ class Worker:
         # 运行环境下用户代码
         pass
 
-    def map(self, file_path):
+    def map(self):
         map_log = utils.getLog("mapper.py", "tuples.txt")
         tuples = utils.readTuple("tuples.txt")
         df = utils.tuples_2_pd(tuples)
         df.sort_values(by='Key')
-        df.to_csv(file_path)
+        file_path = "mapped-{}.csv".format(self.worker_id)
+        df.to_csv(file_path, index=False)
         utils.deleteFile('tuples.txt')
+
+
+    def shuffle(self, df, k):
+        keys = df.unique().tolist()
+
+        buckets = {i: [] for i in range(k)}
+        for key in keys:
+            bucket_num = hash(key) % k
+            buckets[bucket_num].append(key)
+
+        for key in buckets.keys():
+            keys = buckets[key]
+            filtered_df = df[df['Key'].isin(keys)]
+            filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
+            filtered_df.to_csv('mapped-{}-part-{}.csv'.format(self.worker_id, key))
+
 
     def reduce(self, addr_list, key_list):
         utils.combine(addr_list, key_list)
@@ -77,9 +96,11 @@ class Worker:
         tuples = utils.readTuple("tuples.txt")
         df = utils.tuples_2_pd(tuples)
         df.sort_values(by='Key')
-        df.to_csv("reduced.csv")
+        df.to_csv("reduced-{}.csv".format(self.worker_id), index=False)
         utils.deleteFile('tuples.txt')
         utils.deleteFile('to_be_reduced.csv')
+
+
 
 if __name__ == "__main__":
     
