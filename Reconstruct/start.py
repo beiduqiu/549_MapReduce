@@ -3,26 +3,31 @@ from client import *
 from Settings import *
 import multiprocessing
 import subprocess
+import os
+import shutil
 
 def run_script(script_name):
     subprocess.run(['python', script_name])
 
 def main():
-    host = Settings.ServerIP()
+    host = ServerIP()
     port = 12345
-    server = Server(host, port)
-    server.start()
-
-    ## Setup clients
-    worker1 = Worker(host, port, 'worker1')
-    worker2 = Worker(host, port, 'worker2')
+    print(host)
+    my_server = MyServer(host, port)
+    #worker1 = Worker(host, port, 'worker1')
+    #worker2 = Worker(host, port, 'worker2')
+    my_server.start()
+    os.makedirs('splited_data')
+    split_file_by_lines("User\\data.txt",len(my_server.workers),"splited_data")
+    
+    shutil.rmtree('splited_data')
     # 启动更多 workers ...
-
+'''
     # Workers 开始发送状态和接收任务
     worker1.send_status()
     worker1.receive_task()
     worker2.send_status()
-    worker2.receive_task()
+    worker2.receive_task()'''
 
 if __name__ == '__main__':
     main()
