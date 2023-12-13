@@ -127,6 +127,20 @@ class Worker:
         utils.deleteFile('tuples.txt')
         utils.deleteFile('to_be_reduced.csv')
 
+    def send_status(self, server, status):
+        (host, port) = server
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, port))
+            s.sendall(status.encode('utf8'))
+
+    def receive_signal(self, server):
+        (host, port) = server
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, port))
+
+            # 接收来自服务器的信号
+            data = s.recv(1024)
+            print(f"Received data: {data.decode()}")
 
 
 if __name__ == "__main__":
