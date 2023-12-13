@@ -3,6 +3,7 @@ import time
 import utils
 import pandas as pd
 import Settings
+import pickle
 import hashlib
 
 class Worker:
@@ -10,6 +11,7 @@ class Worker:
         self.server_host = server_host
         self.server_port = server_port
         self.worker_id = -1
+        self.workers = []
         self.status = "idle"
         ## ['idle', 'mapping', 'reducing']
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,6 +69,16 @@ class Worker:
             # Receive the file content
             self.receive_file(client_socket, file_name, file_size)
        
+    def receive_work_list(self,client_socket):
+            file_info = client_socket.recv(1024).decode('utf-8')
+            print(file_info)
+            worker_id,work_list_length = file_info.split(',')
+            self.worker_id = worker_id
+            print(f"Receiving work list: worker {self.worker_id}  ({work_list_length} bytes)")
+            serialized_data = client_socket.recv(4096)
+            data_list = pickle.loads(serialized_data)
+            self.workers = data_list[:]
+            print(self.workers)
 
     def start_client(self):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,10 +87,11 @@ class Worker:
         server_port = 12345            # Server Port
 
         self.socket.connect((self.server_host, self.server_port))
+        self.receive_work_list(self.socket)
         self.receive_files(self.socket)
         self.receive_files(self.socket)
         self.receive_files(self.socket)
-
+        
     def run(self):
         # 运行环境下用户代码
         pass

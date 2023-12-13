@@ -19,7 +19,9 @@ def main():
     #worker1 = Worker(host, port, 'worker1')
     #worker2 = Worker(host, port, 'worker2')
     my_server.start_connection(num_workers)
-    
+    time.sleep(0.1)
+    my_server.send_worker_list(num_workers)
+    time.sleep(0.1)
     my_server.send_reduce_file("User\\reducer.py","reducer.py",num_workers)
     time.sleep(0.1)
     my_server.send_map_file("User\\mapper.py","mapper.py",num_workers)
@@ -27,13 +29,6 @@ def main():
     split_file_by_lines("User\\data.txt","data.txt",len(my_server.workers),"splited_data")
     my_server.send_origin_data_to_worker(num_workers,"data.txt")
     shutil.rmtree('splited_data')
-    # 启动更多 workers ...
-'''
-    # Workers 开始发送状态和接收任务
-    worker1.send_status()
-    worker1.receive_task()
-    worker2.send_status()
-    worker2.receive_task()'''
 
 if __name__ == '__main__':
     main()
