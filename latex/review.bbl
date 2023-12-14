@@ -23,4 +23,7 @@
 \bibitem{dean2008mapreduce}
 J.~Dean and S.~Ghemawat, ``Mapreduce: simplified data processing on large clusters,'' \emph{Communications of the ACM}, vol.~51, no.~1, pp. 107--113, 2008.
 
+\bibitem{model}
+H.~Karloff, S.~Suri, and S.~Vassilvitskii, ``A model of computation for mapreduce,'' in \emph{Proceedings of the Twenty-First Annual ACM-SIAM Symposium on Discrete Algorithms}, ser. SODA '10.\hskip 1em plus 0.5em minus 0.4em\relax USA: Society for Industrial and Applied Mathematics, 2010, p. 938–948.
+
 \end{thebibliography}
